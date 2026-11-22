@@ -1,0 +1,49 @@
+# actions/labeler v5 — 변경 경로 기반 PR 라벨 (pr-automation.yml).
+# type 라벨(type: feat 등)은 PR 제목에서 별도 부착.
+
+'app: api':
+  - changed-files:
+      - any-glob-to-any-file: apps/api/**
+
+'pkg: agent-core':
+  - changed-files:
+      - any-glob-to-any-file: packages/agent-core/**
+
+'pkg: fastapi-common':
+  - changed-files:
+      - any-glob-to-any-file: packages/fastapi-common/**
+
+'db':
+  - changed-files:
+      - any-glob-to-any-file: apps/*/migrations/**
+
+'spec':
+  - changed-files:
+      - any-glob-to-any-file: docs/specs/**
+
+'adr':
+  - changed-files:
+      - any-glob-to-any-file: docs/adr/**
+
+'agent-work':
+  - changed-files:
+      - any-glob-to-any-file: agent-work/**
+
+'ci':
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/**
+          - docker/**
+
+'docs':
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/README.md'
+          - docs/*.md
+          - .claude/**
+
+'dependencies':
+  - changed-files:
+      - any-glob-to-any-file:
+          - uv.lock
+          - '**/pyproject.toml'

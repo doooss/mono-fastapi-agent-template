@@ -1,0 +1,20 @@
+[project]
+name = "api"
+version = "0.0.0"
+description = "API app"
+requires-python = ">=3.14"
+dependencies = [
+    "agent-core",
+    "alembic>=1.20.1",
+    "fastapi-common",
+    "sse-starlette>=3.7.0",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.10"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+agent-core = { workspace = true }
+fastapi-common = { workspace = true }

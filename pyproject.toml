@@ -1,0 +1,79 @@
+[project]
+name = "mono-fastapi-agent-template"
+version = "0.0.0"
+requires-python = ">=3.14"
+dependencies = ["api", "agent-core", "fastapi-common"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "mypy>=2.4.1",
+    "poethepoet>=0.49.0",
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.5.0",
+    "ruff>=0.17.6",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["apps/*", "packages/*"]
+
+[tool.uv.sources]
+api = { workspace = true }
+agent-core = { workspace = true }
+fastapi-common = { workspace = true }
+
+# ─── commands: `uv run poe <task>` (same names as nestjs-template's `pnpm <script>`) ───
+
+[tool.poe.tasks]
+"dev:api" = { cmd = "uvicorn api.main:create_app --factory --reload --port 3000", cwd = "apps/api", env = { APP_ENV = "local" }, help = "dev server http://localhost:3000/v1" }
+"start:api" = { cmd = "uvicorn api.main:create_app --factory --host 0.0.0.0 --port 3000", cwd = "apps/api", help = "production server" }
+"check-types" = { cmd = "mypy", help = "mypy --strict (all packages + apps)" }
+lint = { sequence = ["ruff check .", "ruff format --check ."], default_item_type = "cmd", help = "ruff lint + format check" }
+"lint:fix" = { sequence = ["ruff check --fix .", "ruff format ."], default_item_type = "cmd", help = "auto-fix" }
+format = { cmd = "ruff format .", help = "format" }
+test = { cmd = "pytest -m 'not e2e'", help = "unit tests" }
+"test:e2e" = { cmd = "pytest -m e2e", help = "HTTP + real SQLite tests" }
+"db:upgrade" = { cmd = "alembic upgrade head", cwd = "apps/api", help = "apply migrations" }
+"db:revision" = { cmd = "alembic revision --autogenerate -m", cwd = "apps/api", help = "new migration from models: db:revision <message>" }
+"docker:build" = { cmd = "docker build -f docker/api.Dockerfile -t api:local .", help = "local image api:local" }
+"task:new" = { cmd = "node scripts/agent-work.mjs new", help = "task:new <epic|misc> <slug> [title]" }
+"task:status" = { cmd = "node scripts/agent-work.mjs status", help = "open tasks (session start)" }
+"adr:new" = { cmd = "node scripts/agent-work.mjs adr", help = "adr:new <slug> [title]" }
+"ship:check" = { cmd = "node scripts/agent-work.mjs check", help = "ship gate on staged done tasks" }
+
+# ─── tools ───
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+extend-exclude = ["apps/*/migrations/versions", "*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "ASYNC", "S", "PT", "N"]
+ignore = ["N815", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101", "S105", "S106"]
+"**/test_*.py" = ["S101", "S105", "S106"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["api", "agent_core", "fastapi_common"]
+
+[tool.mypy]
+strict = true
+python_version = "3.14"
+files = ["packages/*/src", "apps/*/src", "packages/*/tests", "apps/*/tests"]
+plugins = ["pydantic.mypy"]
+explicit_package_bases = true
+mypy_path = ["packages/agent-core/src", "packages/fastapi-common/src", "apps/api/src"]
+
+[tool.pytest.ini_options]
+testpaths = ["packages", "apps"]
+python_files = ["test_*.py"]
+addopts = "--import-mode=importlib -q"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = ["e2e: HTTP + real SQLite (uv run poe test:e2e)"]

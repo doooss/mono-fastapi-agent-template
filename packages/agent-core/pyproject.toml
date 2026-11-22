@@ -1,0 +1,16 @@
+[project]
+name = "agent-core"
+version = "0.0.0"
+description = "Backend-neutral agent runtime"
+requires-python = ">=3.14"
+dependencies = [
+    "anthropic>=2.12.0",
+    "anyio>=4.16.0",
+    "claude-agent-sdk>=0.2.187",
+    "opentelemetry-api>=1.45.2",
+    "pydantic>=2.14.4",
+]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.10"]
+build-backend = "uv_build"
